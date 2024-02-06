@@ -1,10 +1,33 @@
 {% extends 'base.html' %}
 
 {% block content %}
-  <h2>Реєстрація</h2>
-  <form method="post" action="{% url 'register' %}">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Зареєструватися</button>
-  </form>
+  <div class="container mt-5">
+    <div class="row justify-content-center">
+      <div class="col-md-6">
+        <h2 class="mb-4">Реєстрація</h2>
+        <form method="post" action="{% url 'register' %}" class="needs-validation" novalidate>
+          {% csrf_token %}
+          <div class="mb-3">
+            <label for="id_username" class="form-label">Ім'я користувача</label>
+            <input type="text" name="username" class="form-control" id="id_username" required>
+            <div id="username-validation-message" class="text-muted"></div>
+          </div>
+          <div class="mb-3">
+            <label for="id_email" class="form-label">Електронна пошта</label>
+            <input type="email" name="email" class="form-control" id="id_email" required>
+            <!-- Ви можете також додати повідомлення про валідацію для email -->
+          </div>
+          <div class="mb-3">
+            <label for="id_password1" class="form-label">Пароль</label>
+            <input type="password" name="password1" class="form-control" id="id_password1" required>
+          </div>
+          <div class="mb-3">
+            <label for="id_password2" class="form-label">Підтвердження паролю</label>
+            <input type="password" name="password2" class="form-control" id="id_password2" required>
+          </div>
+          <button type="submit" class="btn btn-primary">Зареєструватися</button>
+        </form>
+      </div>
+    </div>
+  </div>
 {% endblock %}
