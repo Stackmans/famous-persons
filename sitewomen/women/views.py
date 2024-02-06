@@ -1,10 +1,9 @@
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.http import HttpResponse, HttpResponseNotFound, Http404
 from django.shortcuts import redirect, render
 from django.views.generic import CreateView, DetailView, ListView
 from .models import Women
 from django.contrib.auth import login, authenticate
-#  hi
 
 menu = [{'title': "Про сайт", 'url_name': 'about'},
         {'title': "Зворотній звязок", 'url_name': 'contact'},
@@ -80,3 +79,20 @@ def register(request):
         form = UserCreationForm()
 
     return render(request, 'women/register.html', {'form': form})
+
+
+def login_user(request):
+    if request.method == 'POST':
+        form = AuthenticationForm(request, data=request.POST)
+        if form.is_valid():
+            # Аутентифікація користувача
+            user = authenticate(request, username=form.cleaned_data['username'], password=form.cleaned_data['password'])
+
+            # Увійти в систему користувача
+            if user:
+                login(request, user)
+                return redirect('home')
+    else:
+        form = AuthenticationForm()
+
+    return render(request, 'women/login.html', {'form': form})

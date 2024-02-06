@@ -10,20 +10,30 @@
           <div class="mb-3">
             <label for="id_username" class="form-label">Ім'я користувача</label>
             <input type="text" name="username" class="form-control" id="id_username" required>
-            <div id="username-validation-message" class="text-muted"></div>
+            {% if form.errors.username %}
+                <div class="text-danger">{{ form.errors.username.0 }}</div>
+            {% endif %}
           </div>
           <div class="mb-3">
             <label for="id_email" class="form-label">Електронна пошта</label>
             <input type="email" name="email" class="form-control" id="id_email" required>
-            <!-- Ви можете також додати повідомлення про валідацію для email -->
+            {% if form.errors.email %}
+                <div class="text-danger">{{ form.errors.email.0 }}</div>
+            {% endif %}
           </div>
           <div class="mb-3">
             <label for="id_password1" class="form-label">Пароль</label>
             <input type="password" name="password1" class="form-control" id="id_password1" required>
+            {% if form.errors.password1 %}
+                <div class="text-danger">{{ form.errors.password1.0 }}</div>
+            {% endif %}
           </div>
           <div class="mb-3">
             <label for="id_password2" class="form-label">Підтвердження паролю</label>
             <input type="password" name="password2" class="form-control" id="id_password2" required>
+            {% if form.errors.password2 %}
+                <div class="text-danger">{{ form.errors.password2.0 }}</div>
+            {% endif %}
           </div>
           <button type="submit" class="btn btn-primary">Зареєструватися</button>
         </form>
