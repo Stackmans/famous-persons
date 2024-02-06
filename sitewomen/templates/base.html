@@ -4,10 +4,18 @@
 <html>
 <head>
 	<title>{{title}}</title>
-	<link type="text/css" href="{% static 'women/css/styles.css' %}" rel="stylesheet" />
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-	<link rel="shortcut icon" href="{% static 'women/images/main.ico' %}" type="image/x-icon"/>
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!-- Кінець включення Bootstrap -->
+
+    <link type="text/css" href="{% static 'women/css/styles.css' %}" rel="stylesheet" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <link rel="shortcut icon" href="{% static 'women/images/main.ico' %}" type="image/x-icon"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 </head>
 <body>
 <table class="table-page" border=0 cellpadding="0" cellspacing="0">
@@ -62,7 +70,7 @@
 {% block content %}
 {% endblock %}
 	</div>
-<!-- Конец блока контента -->
+<!-- Кінець блока контента -->
 
 </td></tr></table>
 </td></tr>
@@ -72,7 +80,7 @@
 		<p>&copy; За вами слідкують.</p>
 	</div>
 </td></tr></table>
-<!-- Конец footer'а и страницы -->
+<!-- Кінець footer'а -->
 </body>
 </html>
 
