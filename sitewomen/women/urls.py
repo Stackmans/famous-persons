@@ -10,6 +10,7 @@ urlpatterns = [
     path('about/', views.about, name='about'),  # http://127.0.0.1:8000/about/
     path('contact/', views.contact, name='contact'),
     path('addpage/', views.addpage, name='addpage'),
+    path('addpicture/', views.add_picture, name='addpicture'),
     path('post/<int:post_id>/', views.show_post, name='post'),  # http://127.0.0.1:8000/post/1/
     path('category/<int:cat_id>/', views.show_category, name='category'),  # http://127.0.0.1:8000/category/1/
 

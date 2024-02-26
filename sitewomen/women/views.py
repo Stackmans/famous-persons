@@ -6,10 +6,17 @@ from django.contrib.auth import login, authenticate
 from .forms import UploadFileForm
 from .models import Women, UploadFiles
 
-menu = [{'title': "Про сайт", 'url_name': 'about'},
+menu = [
+        {'title': "Про сайт", 'url_name': 'about'},
         {'title': "Зворотній звязок", 'url_name': 'contact'},
         {'title': 'Додати статтю', 'url_name': 'addpage'}
-        ]
+]
+
+superuser_menu = [
+        {'title': "Додати зображення", 'url_name': 'addpicture'},
+        {'title': "Зворотній звязок", 'url_name': 'contact'},
+        {'title': 'Додати статтю', 'url_name': 'addpage'}
+]
 
 categories_db = [
     {'id': 1, 'name': 'Актриси'},
@@ -21,6 +28,7 @@ categories_db = [
 def index(request):
     data = {'title': 'головна сторінка',
             'menu': menu,
+            'superuser_menu': superuser_menu,
             'posts': Women.objects.all(),
             'cat_selected': 0,
             }
@@ -29,6 +37,7 @@ def index(request):
 
 def show_category(request, cat_id):
     data = {'title': 'Відображення по рубрикам',
+            'superuser_menu': superuser_menu,
             'menu': menu,
             'posts': Women.objects.all(),
             'cat_selected': cat_id,
@@ -46,25 +55,19 @@ def show_post(request, post_id):
 
     data = {
         'post': post,
-        'menu': menu
+        'menu': menu,
+        'superuser_menu': superuser_menu
     }
     return render(request, 'women/biography.html', data)
 
 
 def about(request):
-    if request.method == 'POST':
-        form = UploadFileForm(request.POST, request.FILES)
-        if form.is_valid():
-            fp = UploadFiles(file=form.cleaned_data['file'])
-            fp.save()
-    else:
-        form = UploadFileForm()
-    data = {'menu': menu, 'form': form, 'user': request.user}
+    data = {'menu': menu, 'user': request.user}
     return render(request, 'women/about.html', data)
 
 
 def addpage(request):
-    data = {'menu': menu, 'user': request.user}
+    data = {'menu': menu, 'superuser_menu': superuser_menu, 'user': request.user}
     return render(request, 'women/addpage.html', data)
 
 
@@ -73,8 +76,20 @@ def page_not_found(request, exception):
 
 
 def contact(request):
-    data = {'menu': menu}
+    data = {'menu': menu, 'superuser_menu': superuser_menu}
     return render(request, 'women/contact.html', data)
+
+
+def add_picture(request):
+    if request.method == 'POST':
+        form = UploadFileForm(request.POST, request.FILES)
+        if form.is_valid():
+            fp = UploadFiles(file=form.cleaned_data['file'])
+            fp.save()
+    else:
+        form = UploadFileForm()
+    data = {'superuser_menu': superuser_menu, 'form': form, 'user': request.user}
+    return render(request, 'women/addpicture.html', data)
 
 
 def register(request):
