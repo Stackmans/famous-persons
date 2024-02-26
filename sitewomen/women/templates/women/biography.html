@@ -1,13 +1,32 @@
 {% extends 'base.html' %}
 {% block content %}
+  <style>
+    .photo-and-text-container {
+      display: flex;
+      align-items: center;
+    }
+
+    .text-content {
+      flex-grow: 1;
+      margin-left: 50px;
+    }
+  </style>
+
   {% if post %}
-    <h2>{{ post.title }}</h2>
-    <p>{{ post.content }}</p>
-    {% if post.is_published %}
-      <p>This post is published.</p>
-    {% else %}
-      <p>This post is not published.</p>
-    {% endif %}
+    <div class="photo-and-text-container">
+      {% if post.photo %}
+        <img src="{{ post.photo.file.url }}" alt="{{ post.title }}" class="img-fluid float-start me-3">
+      {% endif %}
+      <div class="text-content">
+        <h2>{{ post.title }}</h2>
+        <p>{{ post.content }}</p>
+        {% if post.is_published %}
+          <p>This post is published.</p>
+        {% else %}
+          <p>This post is not published.</p>
+        {% endif %}
+      </div>
+    </div>
   {% else %}
     <p>Post not found.</p>
   {% endif %}

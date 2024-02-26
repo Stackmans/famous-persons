@@ -1,12 +1,14 @@
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from django.http import HttpResponse, HttpResponseNotFound, Http404
+from django.http import HttpResponse, HttpResponseNotFound
 from django.shortcuts import redirect, render
-from django.views.generic import CreateView, DetailView, ListView
-from .models import Women
 from django.contrib.auth import login, authenticate
+
+from .forms import UploadFileForm
+from .models import Women, UploadFiles
 
 menu = [{'title': "Про сайт", 'url_name': 'about'},
         {'title': "Зворотній звязок", 'url_name': 'contact'},
+        {'title': 'Додати статтю', 'url_name': 'addpage'}
         ]
 
 categories_db = [
@@ -49,8 +51,20 @@ def show_post(request, post_id):
 
 
 def about(request):
-    data = {'title': 'Про сайт', 'menu': menu}
+    if request.method == 'POST':
+        form = UploadFileForm(request.POST, request.FILES)
+        if form.is_valid():
+            fp = UploadFiles(file=form.cleaned_data['file'])
+            fp.save()
+    else:
+        form = UploadFileForm()
+    data = {'title': 'Про сайт', 'menu': menu, 'form': form, 'user': request.user}
     return render(request, 'women/about.html', data)
+
+
+def addpage(request):
+    data = {'menu': menu, 'user': request.user}
+    return render(request, 'women/addpage.html', data)
 
 
 def page_not_found(request, exception):
@@ -58,7 +72,7 @@ def page_not_found(request, exception):
 
 
 def contact(request):
-    return HttpResponse('Зворотній звязок')
+    return render(request, 'women/contact.html')
 
 
 def register(request):
@@ -96,3 +110,20 @@ def login_user(request):
         form = AuthenticationForm()
 
     return render(request, 'women/login.html', {'form': form})
+
+# biography.html
+
+# {% extends 'base.html' %}
+# {% block content %}
+#   {% if post %}
+#     <h2>{{ post.title }}</h2>
+#     <p>{{ post.content }}</p>
+#     {% if post.is_published %}
+#       <p>This post is published.</p>
+#     {% else %}
+#       <p>This post is not published.</p>
+#     {% endif %}
+#   {% else %}
+#     <p>Post not found.</p>
+#   {% endif %}
+# {% endblock %}

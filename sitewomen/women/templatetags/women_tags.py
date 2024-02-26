@@ -1,6 +1,5 @@
 from django import template
-from women.models import Category  # Змінено імпорт
-
+from women.models import Category
 register = template.Library()
 
 

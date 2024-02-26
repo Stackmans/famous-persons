@@ -7,6 +7,9 @@
     {% autoescape off %}
 	{{p.content|linebreaks|truncatewords:10}}
     {% endautoescape %}
+			{% if p.photo %}
+				<p><img class="img-article-left thumb" src="{{p.photo.url}}" ></p>
+			{% endif %}
 			<div class="clear"></div>
 			<p class="link-read-post"><a href="{% url 'post' p.id %}">Читати пост</a></p>
 			</li>

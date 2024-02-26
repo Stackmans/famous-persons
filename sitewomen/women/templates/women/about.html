@@ -1,5 +1,13 @@
 {% extends 'base.html' %}
 {% block content %}
 <h1>{{ title|capfirst }}</h1>
+{% if user.is_superuser %}
+<form action="" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <p><button type="submit">Відправити</button></p>
+</form>
+{% else %}
 <h3>Hello, this site.net created by Pan Dymytro</h3>
+{% endif %}
 {% endblock %}
