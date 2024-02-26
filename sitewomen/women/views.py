@@ -46,6 +46,7 @@ def show_post(request, post_id):
 
     data = {
         'post': post,
+        'menu': menu
     }
     return render(request, 'women/biography.html', data)
 
@@ -58,7 +59,7 @@ def about(request):
             fp.save()
     else:
         form = UploadFileForm()
-    data = {'title': 'Про сайт', 'menu': menu, 'form': form, 'user': request.user}
+    data = {'menu': menu, 'form': form, 'user': request.user}
     return render(request, 'women/about.html', data)
 
 
@@ -72,7 +73,8 @@ def page_not_found(request, exception):
 
 
 def contact(request):
-    return render(request, 'women/contact.html')
+    data = {'menu': menu}
+    return render(request, 'women/contact.html', data)
 
 
 def register(request):
