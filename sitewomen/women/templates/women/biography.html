@@ -15,7 +15,7 @@
   {% if post %}
     <div class="photo-and-text-container">
       {% if post.photo %}
-        <img src="{{ post.photo.file.url }}" alt="{{ post.title }}" class="img-fluid float-start me-3">
+        <img src="{{ post.photo.file.url }}" alt="{{ post.title }}" class="img-article-left thumb">
       {% endif %}
       <div class="text-content">
         <h2>{{ post.title }}</h2>
