@@ -9,4 +9,4 @@ class UploadFileForm(forms.Form):
 class WomenForm(forms.ModelForm):
     class Meta:
         model = Women
-        fields = ['title', 'content', 'photo']
+        fields = ['title', 'content', 'cat', 'photo']

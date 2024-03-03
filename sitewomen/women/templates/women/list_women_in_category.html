@@ -3,6 +3,9 @@
 <ul class="list-articles">
 	{% for p in posts %}
     {% if p.cat.id == cat_selected %}
+		{% if p.photo %}
+        <img src="{{ p.photo.file.url }}" alt="{{ p.title }}" class="img-article-left thumb">
+      	{% endif %}
         <li><h2>{{p.title}}</h2>
 	    {{p.content|linebreaks}}
 			<div class="clear"></div>

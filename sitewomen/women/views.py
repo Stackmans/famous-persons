@@ -3,13 +3,12 @@ from django.http import HttpResponse, HttpResponseNotFound
 from django.shortcuts import redirect, render
 from django.contrib.auth import login, authenticate
 
-from .forms import UploadFileForm
+from .forms import UploadFileForm, WomenForm
 from .models import Women, UploadFiles
 
 menu = [
         {'title': "Про сайт", 'url_name': 'about'},
         {'title': "Зворотній звязок", 'url_name': 'contact'},
-        {'title': 'Додати статтю', 'url_name': 'addpage'}
 ]
 
 superuser_menu = [
@@ -66,9 +65,22 @@ def about(request):
     return render(request, 'women/about.html', data)
 
 
+# def addpage(request):
+#     data = {'menu': menu, 'superuser_menu': superuser_menu, 'user': request.user}
+#     return render(request, 'women/addpage.html', data)
+
+
 def addpage(request):
-    data = {'menu': menu, 'superuser_menu': superuser_menu, 'user': request.user}
-    return render(request, 'women/addpage.html', data)
+    if request.method == 'POST':
+        form = WomenForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return redirect('home')  # Перенаправлення на головну сторінку після успішного додавання
+    else:
+        form = WomenForm()
+
+    data = {'title': 'Додати людину', 'form': form, 'menu': menu, 'superuser_menu': superuser_menu}
+    return render(request, 'addpage.html', data)
 
 
 def page_not_found(request, exception):
@@ -98,10 +110,8 @@ def register(request):
         if form.is_valid():
             user = form.save()
 
-            # Аутентифікація користувача
             user = authenticate(request, username=user.username, password=request.POST['password1'])
 
-            # Увійти в систему користувача
             if user:
                 login(request, user)
 
