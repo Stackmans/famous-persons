@@ -1,10 +1,11 @@
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.http import HttpResponse, HttpResponseNotFound
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect, render, get_object_or_404
 from django.contrib.auth import login, authenticate
 
-from .forms import UploadFileForm, WomenForm
-from .models import Women, UploadFiles
+from .forms import UploadFileForm, WomenForm, CommentForm
+from .models import Women, UploadFiles, Comment
+
 
 menu = [
         {'title': "Про сайт", 'url_name': 'about'},
@@ -137,6 +138,28 @@ def login_user(request):
         form = AuthenticationForm()
 
     return render(request, 'women/login.html', {'form': form})
+
+
+def post_detail(request, post_id):
+    post = get_object_or_404(Women, id=post_id)
+    comments = Comment.objects.filter(post=post)
+
+    if request.method == 'POST':
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            new_comment = form.save(commit=False)
+            new_comment.post = post
+            new_comment.save()
+            form = CommentForm()  # Очистіть форму для подальших коментарів
+    else:
+        form = CommentForm()
+
+    return render(request, 'women/post_detail.html', {'post': post,
+                                                      'comments': comments,
+                                                      'form': form,
+                                                      'menu': menu,
+                                                      'superuser_menu': superuser_menu})
+    # return render(request, 'women/biography.html', {'post': post, 'comments': comments, 'form': form, 'menu': menu})
 
 # biography.html
 
