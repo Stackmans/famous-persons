@@ -15,4 +15,8 @@ class WomenForm(forms.ModelForm):
 class CommentForm(forms.ModelForm):
     class Meta:
         model = Comment
-        fields = ['author', 'text']
+        fields = ['text']  # Автора більше не потрібно вказувати, оскільки він прив'язаний до користувача
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['text'].widget.attrs.update({'rows': 3, 'cols': 50})  # Налаштування атрибутів текстового поля

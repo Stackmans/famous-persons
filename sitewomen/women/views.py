@@ -1,5 +1,6 @@
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from django.http import HttpResponse, HttpResponseNotFound
+from django.http import HttpResponseNotFound, JsonResponse, HttpResponseForbidden
 from django.shortcuts import redirect, render, get_object_or_404
 from django.contrib.auth import login, authenticate
 
@@ -18,11 +19,11 @@ superuser_menu = [
         {'title': 'Додати статтю', 'url_name': 'addpage'}
 ]
 
-categories_db = [
-    {'id': 1, 'name': 'Актриси'},
-    {'id': 2, 'name': 'Співачки'},
-    {'id': 3, 'name': 'Спортсменки'},
-]
+# categories_db = [
+#     {'id': 1, 'name': 'Актриси'},
+#     {'id': 2, 'name': 'Співачки'},
+#     {'id': 3, 'name': 'Спортсменки'},
+# ]
 
 
 def index(request):
@@ -45,30 +46,9 @@ def show_category(request, cat_id):
     return render(request, 'women/list_women_in_category.html', data)
 
 
-def show_post(request, post_id):
-    # Отримуємо об'єкт з бази даних за заданим post_id
-    try:
-        post = Women.objects.get(id=post_id)
-    except Women.DoesNotExist:
-        # Обробляємо випадок, коли об'єкт не знайдений
-        post = None
-
-    data = {
-        'post': post,
-        'menu': menu,
-        'superuser_menu': superuser_menu
-    }
-    return render(request, 'women/biography.html', data)
-
-
 def about(request):
     data = {'menu': menu, 'user': request.user}
     return render(request, 'women/about.html', data)
-
-
-# def addpage(request):
-#     data = {'menu': menu, 'superuser_menu': superuser_menu, 'user': request.user}
-#     return render(request, 'women/addpage.html', data)
 
 
 def addpage(request):
@@ -80,7 +60,7 @@ def addpage(request):
     else:
         form = WomenForm()
 
-    data = {'title': 'Додати людину', 'form': form, 'menu': menu, 'superuser_menu': superuser_menu}
+    data = {'title': 'Додати статтю', 'form': form, 'menu': menu, 'superuser_menu': superuser_menu}
     return render(request, 'addpage.html', data)
 
 
@@ -93,7 +73,7 @@ def contact(request):
     return render(request, 'women/contact.html', data)
 
 
-def add_picture(request):
+def add_picture(request):  # зберігає в БД
     if request.method == 'POST':
         form = UploadFileForm(request.POST, request.FILES)
         if form.is_valid():
@@ -140,6 +120,7 @@ def login_user(request):
     return render(request, 'women/login.html', {'form': form})
 
 
+@login_required  # Додаємо декоратор для перевірки, чи користувач увійшов в систему
 def post_detail(request, post_id):
     post = get_object_or_404(Women, id=post_id)
     comments = Comment.objects.filter(post=post)
@@ -149,8 +130,9 @@ def post_detail(request, post_id):
         if form.is_valid():
             new_comment = form.save(commit=False)
             new_comment.post = post
+            new_comment.author = request.user  # Вказуємо автора коментаря
             new_comment.save()
-            form = CommentForm()  # Очистіть форму для подальших коментарів
+            form = CommentForm()  # Очищення форми для подальших коментарів
     else:
         form = CommentForm()
 
@@ -159,21 +141,14 @@ def post_detail(request, post_id):
                                                       'form': form,
                                                       'menu': menu,
                                                       'superuser_menu': superuser_menu})
-    # return render(request, 'women/biography.html', {'post': post, 'comments': comments, 'form': form, 'menu': menu})
 
-# biography.html
 
-# {% extends 'base.html' %}
-# {% block content %}
-#   {% if post %}
-#     <h2>{{ post.title }}</h2>
-#     <p>{{ post.content }}</p>
-#     {% if post.is_published %}
-#       <p>This post is published.</p>
-#     {% else %}
-#       <p>This post is not published.</p>
-#     {% endif %}
-#   {% else %}
-#     <p>Post not found.</p>
-#   {% endif %}
-# {% endblock %}
+def delete_comment(request, comment_id):
+    comment = get_object_or_404(Comment, id=comment_id)
+
+    # Перевірка, чи користувач, який намагається видалити коментар, є автором коментаря
+    if request.user == comment.author:
+        comment.delete()
+        return JsonResponse({'message': 'Коментар видалено успішно.'})
+    else:
+        return HttpResponseForbidden('Ви не маєте дозволу на видалення цього коментаря.')

@@ -22,6 +22,47 @@
     }
   </style>
 
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script>
+  $(document).ready(function () {
+    // Отримання CSRF-токену з кукі
+    function getCookie(name) {
+      var cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+          var cookie = cookies[i].trim();
+          // Перевірка, чи починається кука із потрібного імені
+          if (cookie.substring(0, name.length + 1) === (name + '=')) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+
+    $('.delete-comment').click(function (event) {
+      event.preventDefault();
+      var commentId = $(this).data('comment-id');
+      var csrftoken = getCookie('csrftoken');  // Отримання CSRF-токену
+
+      $.ajax({
+        type: 'DELETE',
+        url: '/delete_comment/' + commentId + '/',
+        headers: {'X-CSRFToken': csrftoken},  // Додавання CSRF-токену у заголовок запиту
+        success: function (data) {
+          console.log(data.message);
+          location.reload();
+        },
+        error: function (error) {
+          console.log('Помилка при видаленні коментаря:', error.responseText);
+        }
+      });
+    });
+  });
+</script>
+
   {% if post %}
     <div class="photo-and-text-container">
       {% if post.photo %}
@@ -42,26 +83,31 @@
   {% endif %}
 
 
-  <!-- Додайте форму для коментарів -->
+  <!-- форма для коментарів -->
 
   <div class="comment-form" style="max-width: 300px;">
     <form method="post" action="">
         {% csrf_token %}
-        <label for="id_text">Text:</label>
-        <textarea name="text" rows="3" cols="50" id="id_text"></textarea>
-        <input type="hidden" name="author" value="{{ request.user.username }}">
+        {{ form.as_p }}
         <button type="submit">Додати коментар</button>
     </form>
 </div>
 
-  <!-- Виведіть список коментарів -->
+  <!-- список коментарів -->
   <div class="comments-list">
     <h2>Коментарі:</h2>
     <ul>
+
+
       {% for comment in comments %}
-          <li class="comment">
-            <strong>{{ comment.author }}</strong> написав(ла) {{ comment.created_at }}:<br>
-            {{ comment.text }}
+    <li class="comment">
+        <strong>{{ comment.author.username }}</strong> написав(ла) {{ comment.created_at }}:<br>
+        {{ comment.text }}
+
+        {% if request.user == comment.author %}
+            <a href="#" class="delete-comment" data-comment-id="{{ comment.id }}">Видалити</a>
+        {% endif %}
+
           </li>
       {% endfor %}
     </ul>
