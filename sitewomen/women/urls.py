@@ -4,7 +4,8 @@ from django.contrib.auth.views import LoginView, LogoutView, PasswordResetView, 
     PasswordResetConfirmView, PasswordResetCompleteView
 
 urlpatterns = [
-    path('', views.index, name='home'),
+    # path('', views.index, name='home'),
+    path('', views.WomenHome.as_view(), name='home'),
     path('about/', views.about, name='about'),
     path('contact/', views.contact, name='contact'),
     path('addpage/', views.addpage, name='addpage'),
@@ -13,8 +14,10 @@ urlpatterns = [
 
     path('delete_comment/<int:comment_id>/', views.delete_comment, name='delete_comment'),
 
-    path('category/<int:cat_id>/', views.show_category, name='category'),
-    path('register/', views.register, name='register'),
+    # path('category/<int:cat_id>/', views.show_category, name='category'),
+    path('category/<int:cat_id>/', views.WomenCategories.as_view(), name='category'),
+    # path('register/', views.register, name='register'),
+    path('register/', views.RegisterView.as_view(), name='register'),
     path('login/', views.login_user, name='login'),
     path('logout/', LogoutView.as_view(), name='logout'),
     path('password_reset/', PasswordResetView.as_view(), name='password_reset'),

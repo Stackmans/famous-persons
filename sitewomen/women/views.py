@@ -1,49 +1,77 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from django.http import HttpResponseNotFound, JsonResponse, HttpResponseForbidden
+from django.http import HttpResponseNotFound, JsonResponse, HttpResponseForbidden, HttpResponseRedirect
 from django.shortcuts import redirect, render, get_object_or_404
 from django.contrib.auth import login, authenticate
+from django.urls import reverse
+from django.views import View
+from django.views.generic import TemplateView, ListView
 
 from .forms import UploadFileForm, WomenForm, CommentForm
 from .models import Women, UploadFiles, Comment
 
-
 menu = [
-        {'title': "Про сайт", 'url_name': 'about'},
-        {'title': "Зворотній звязок", 'url_name': 'contact'},
+    {'title': "Про сайт", 'url_name': 'about'},
+    {'title': "Зворотній звязок", 'url_name': 'contact'},
 ]
 
 superuser_menu = [
-        {'title': "Додати зображення", 'url_name': 'addpicture'},
-        {'title': "Зворотній звязок", 'url_name': 'contact'},
-        {'title': 'Додати статтю', 'url_name': 'addpage'}
+    {'title': "Додати зображення", 'url_name': 'addpicture'},
+    {'title': "Зворотній звязок", 'url_name': 'contact'},
+    {'title': 'Додати статтю', 'url_name': 'addpage'}
 ]
 
-# categories_db = [
-#     {'id': 1, 'name': 'Актриси'},
-#     {'id': 2, 'name': 'Співачки'},
-#     {'id': 3, 'name': 'Спортсменки'},
-# ]
+
+# def index(request):
+#     data = {'title': 'головна сторінка',
+#             'menu': menu,
+#             'superuser_menu': superuser_menu,
+#             # 'posts': Women.objects.all(),
+#             'posts': Women.objects.filter(is_published=True).select_related('cat'),  # SR optimizing
+#             'cat_selected': 0,
+#             }
+#     return render(request, 'women/index.html', data)
 
 
-def index(request):
-    data = {'title': 'головна сторінка',
-            'menu': menu,
-            'superuser_menu': superuser_menu,
-            'posts': Women.objects.all(),
-            'cat_selected': 0,
-            }
-    return render(request, 'women/index.html', data)
+class WomenHome(TemplateView):
+    template_name = 'women/index.html'
+    extra_context = {'title': 'головна сторінка',
+                     'menu': menu,
+                     'superuser_menu': superuser_menu,
+                     # 'posts': Women.objects.all(),
+                     'posts': Women.objects.filter(is_published=True).select_related('cat'),  # SR optimizing
+                     'cat_selected': 0,
+                     }
 
 
-def show_category(request, cat_id):
-    data = {'title': 'Відображення по рубрикам',
-            'superuser_menu': superuser_menu,
-            'menu': menu,
-            'posts': Women.objects.all(),
-            'cat_selected': cat_id,
-            }
-    return render(request, 'women/list_women_in_category.html', data)
+# def show_category(request, cat_id):
+#     data = {'title': 'Відображення по рубрикам',
+#             'superuser_menu': superuser_menu,
+#             'menu': menu,
+#             # 'posts': Women.objects.all(),
+#             'posts': Women.objects.filter(is_published=True).select_related('cat'),
+#             'cat_selected': cat_id,
+#             }
+#     return render(request, 'women/list_women_in_category.html', data)
+
+
+class WomenCategories(ListView):   # LV good to use in static. if we need dynamic use GQ and GCD
+    model = Women
+    template_name = 'women/list_women_in_category.html'
+    context_object_name = 'posts'
+
+    def get_queryset(self):
+        cat_id = self.kwargs['cat_id']
+        queryset = super().get_queryset()
+        return queryset.filter(is_published=True, cat_id=cat_id)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Відображення по рубрикам'
+        context['superuser_menu'] = superuser_menu
+        context['menu'] = menu
+        context['cat_selected'] = self.kwargs['cat_id']
+        return context
 
 
 def about(request):
@@ -85,22 +113,41 @@ def add_picture(request):  # зберігає в БД
     return render(request, 'women/addpicture.html', data)
 
 
-def register(request):
-    if request.method == 'POST':
+class RegisterView(View):
+    def get(self, request):
+        form = UserCreationForm()
+        return render(request, 'women/register.html', {'form': form})
+
+    def post(self, request):
         form = UserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
 
-            user = authenticate(request, username=user.username, password=request.POST['password1'])
+            user = authenticate(username=user.username, password=request.POST['password1'])
 
             if user:
                 login(request, user)
 
-            return redirect('home')
-    else:
-        form = UserCreationForm()
+            return HttpResponseRedirect(reverse('home'))
+        return render(request, 'women/register.html', {'form': form})
 
-    return render(request, 'women/register.html', {'form': form})
+
+# def register(request):
+#     if request.method == 'POST':
+#         form = UserCreationForm(request.POST)
+#         if form.is_valid():
+#             user = form.save()
+#
+#             user = authenticate(request, username=user.username, password=request.POST['password1'])
+#
+#             if user:
+#                 login(request, user)
+#
+#             return redirect('home')
+#     else:
+#         form = UserCreationForm()
+#
+#     return render(request, 'women/register.html', {'form': form})
 
 
 def login_user(request):
