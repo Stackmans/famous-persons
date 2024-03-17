@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block content %}
-  <style>
+<style>
     .post-container {
       margin-bottom: 20px;
     }
@@ -20,7 +20,8 @@
       border: 1px solid #ccc;
       padding: 10px;
     }
-  </style>
+
+</style>
 
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 <script>
@@ -61,31 +62,32 @@
       });
     });
   });
+
 </script>
 
-  {% if post %}
-    <div class="photo-and-text-container">
-      {% if post.photo %}
-        <img src="{{ post.photo.file.url }}" alt="{{ post.title }}" class="img-article-left thumb">
-      {% endif %}
-      <div class="text-content">
+{% if post %}
+<div class="photo-and-text-container">
+    {% if post.photo %}
+    <img src="{{ post.photo.file.url }}" alt="{{ post.title }}" class="img-article-left thumb">
+    {% endif %}
+    <div class="text-content">
         <h2>{{ post.title }}</h2>
         <p>{{ post.content }}</p>
         {% if post.is_published %}
-          <p>This post is published.</p>
+        <p>This post is published.</p>
         {% else %}
-          <p>This post is not published.</p>
+        <p>This post is not published.</p>
         {% endif %}
-      </div>
     </div>
-  {% else %}
-    <p>Post not found.</p>
-  {% endif %}
+</div>
+{% else %}
+<p>Post not found.</p>
+{% endif %}
 
 
-  <!-- форма для коментарів -->
-
-  <div class="comment-form" style="max-width: 300px;">
+<!-- форма для коментарів -->
+{% if user.is_authenticated %}
+<div class="comment-form" style="max-width: 300px;">
     <form method="post" action="">
         {% csrf_token %}
         {{ form.as_p }}
@@ -93,23 +95,27 @@
     </form>
 </div>
 
-  <!-- список коментарів -->
-  <div class="comments-list">
+
+<!-- список коментарів -->
+<div class="comments-list">
     <h2>Коментарі:</h2>
     <ul>
-
-
-      {% for comment in comments %}
-    <li class="comment">
-        <strong>{{ comment.author.username }}</strong> написав(ла) {{ comment.created_at }}:<br>
-        {{ comment.text }}
-
-        {% if request.user == comment.author %}
-            <a href="#" class="delete-comment" data-comment-id="{{ comment.id }}">Видалити</a>
+        {% else %}
+        <h1>Щоб залишити коментар
+        <a href="{% url 'login' %}">увійдіть</a></h1>
         {% endif %}
 
-          </li>
-      {% endfor %}
+        {% for comment in comments %}
+        <li class="comment">
+            <strong>{{ comment.author.username }}</strong> написав(ла) {{ comment.created_at }}:<br>
+            {{ comment.text }}
+
+            {% if request.user == comment.author %}
+            <a href="#" class="delete-comment" data-comment-id="{{ comment.id }}">Видалити</a>
+            {% endif %}
+
+        </li>
+        {% endfor %}
     </ul>
-  </div>
+</div>
 {% endblock %}

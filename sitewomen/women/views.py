@@ -1,4 +1,3 @@
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.http import HttpResponseNotFound, JsonResponse, HttpResponseForbidden, HttpResponseRedirect
 from django.shortcuts import redirect, render, get_object_or_404
@@ -55,7 +54,7 @@ class WomenHome(TemplateView):
 #     return render(request, 'women/list_women_in_category.html', data)
 
 
-class WomenCategories(ListView):   # LV good to use in static. if we need dynamic use GQ and GCD
+class WomenCategories(ListView):  # LV good to use in static. if we need dynamic use GQ and GCD
     model = Women
     template_name = 'women/list_women_in_category.html'
     context_object_name = 'posts'
@@ -167,7 +166,6 @@ def login_user(request):
     return render(request, 'women/login.html', {'form': form})
 
 
-@login_required  # Додаємо декоратор для перевірки, чи користувач увійшов в систему
 def post_detail(request, post_id):
     post = get_object_or_404(Women, id=post_id)
     comments = Comment.objects.filter(post=post)
