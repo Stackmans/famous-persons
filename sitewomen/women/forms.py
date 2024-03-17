@@ -9,7 +9,8 @@ class UploadFileForm(forms.Form):
 class WomenForm(forms.ModelForm):
     class Meta:
         model = Women
-        fields = ['title', 'content', 'cat', 'photo']
+        # fields = ['title', 'content', 'cat', 'photo']
+        fields = '__all__'
 
 
 class CommentForm(forms.ModelForm):

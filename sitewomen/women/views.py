@@ -2,9 +2,9 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.http import HttpResponseNotFound, JsonResponse, HttpResponseForbidden, HttpResponseRedirect
 from django.shortcuts import redirect, render, get_object_or_404
 from django.contrib.auth import login, authenticate
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.views import View
-from django.views.generic import TemplateView, ListView
+from django.views.generic import TemplateView, ListView, UpdateView, CreateView
 
 from .forms import UploadFileForm, WomenForm, CommentForm
 from .models import Women, UploadFiles, Comment
@@ -16,8 +16,7 @@ menu = [
 
 superuser_menu = [
     {'title': "Додати зображення", 'url_name': 'addpicture'},
-    {'title': "Зворотній звязок", 'url_name': 'contact'},
-    {'title': 'Додати статтю', 'url_name': 'addpage'}
+    {'title': 'Додати статтю', 'url_name': 'addpage'},
 ]
 
 
@@ -41,17 +40,6 @@ class WomenHome(TemplateView):
                      'posts': Women.objects.filter(is_published=True).select_related('cat'),  # SR optimizing
                      'cat_selected': 0,
                      }
-
-
-# def show_category(request, cat_id):
-#     data = {'title': 'Відображення по рубрикам',
-#             'superuser_menu': superuser_menu,
-#             'menu': menu,
-#             # 'posts': Women.objects.all(),
-#             'posts': Women.objects.filter(is_published=True).select_related('cat'),
-#             'cat_selected': cat_id,
-#             }
-#     return render(request, 'women/list_women_in_category.html', data)
 
 
 class WomenCategories(ListView):  # LV good to use in static. if we need dynamic use GQ and GCD
@@ -78,17 +66,14 @@ def about(request):
     return render(request, 'women/about.html', data)
 
 
-def addpage(request):
-    if request.method == 'POST':
-        form = WomenForm(request.POST, request.FILES)
-        if form.is_valid():
-            form.save()
-            return redirect('home')  # Перенаправлення на головну сторінку після успішного додавання
-    else:
-        form = WomenForm()
-
-    data = {'title': 'Додати статтю', 'form': form, 'menu': menu, 'superuser_menu': superuser_menu}
-    return render(request, 'addpage.html', data)
+class NewPage(CreateView):
+    form_class = WomenForm
+    template_name = 'addpage.html'
+    success_url = reverse_lazy('home')
+    extra_context = {
+        'title': 'Додати статтю',
+        'superuser_menu': superuser_menu
+    }
 
 
 def page_not_found(request, exception):
@@ -129,24 +114,6 @@ class RegisterView(View):
 
             return HttpResponseRedirect(reverse('home'))
         return render(request, 'women/register.html', {'form': form})
-
-
-# def register(request):
-#     if request.method == 'POST':
-#         form = UserCreationForm(request.POST)
-#         if form.is_valid():
-#             user = form.save()
-#
-#             user = authenticate(request, username=user.username, password=request.POST['password1'])
-#
-#             if user:
-#                 login(request, user)
-#
-#             return redirect('home')
-#     else:
-#         form = UserCreationForm()
-#
-#     return render(request, 'women/register.html', {'form': form})
 
 
 def login_user(request):
