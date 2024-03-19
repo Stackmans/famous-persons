@@ -116,8 +116,12 @@ class RegisterView(View):
         return render(request, 'women/register.html', {'form': form})
 
 
-def login_user(request):
-    if request.method == 'POST':
+class LoginView(View):
+    def get(self, request):
+        form = AuthenticationForm()
+        return render(request, 'women/login.html', {'form': form})
+
+    def post(self, request):
         form = AuthenticationForm(request, data=request.POST)
         if form.is_valid():
             # Аутентифікація користувача
@@ -127,10 +131,6 @@ def login_user(request):
             if user:
                 login(request, user)
                 return redirect('home')
-    else:
-        form = AuthenticationForm()
-
-    return render(request, 'women/login.html', {'form': form})
 
 
 def post_detail(request, post_id):
